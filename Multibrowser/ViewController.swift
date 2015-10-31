@@ -69,6 +69,31 @@ class ViewController: UIViewController, UIWebViewDelegate, UITextFieldDelegate, 
         tapGR.delegate = self
     }
     
+    func deleteWebView() {
+        guard let currentWebView = self.activeWebView else { return }
+        guard let index = self.stackView.arrangedSubviews.indexOf(currentWebView) else { return }
+        // found the current view & remove it from the stack view
+        self.stackView.removeArrangedSubview(currentWebView)
+        // & remove it from the view hierarchy
+        currentWebView.removeFromSuperview()
+        
+        if self.stackView.arrangedSubviews.count == 0 {
+            self.setDefaultTitle()
+        }
+        else {
+            // convert index value to an int
+            var currentIndex = Int(index)
+            // if that was the last web view in the stack, go back one
+            if currentIndex == self.stackView.arrangedSubviews.count {
+                currentIndex = self.stackView.arrangedSubviews.count - 1
+            }
+            // find the web view at the new index and select it
+            if let newSelectedWebView = self.stackView.arrangedSubviews[currentIndex] as? UIWebView {
+                self.selectWebView(newSelectedWebView)
+            }
+        }
+    }
+    
     func selectWebView(webView: UIWebView) {
         for view in self.stackView.arrangedSubviews {
             view.layer.borderWidth = 0
