@@ -35,6 +35,11 @@ class ViewController: UIViewController, UIWebViewDelegate, UITextFieldDelegate, 
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    override func traitCollectionDidChange(previousTraitCollection: UITraitCollection?) {
+        self.stackView.axis = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClass.Compact ? .Vertical : .Horizontal
+
+    }
 
     // MARK: - Delegate Methods
     
@@ -43,12 +48,16 @@ class ViewController: UIViewController, UIWebViewDelegate, UITextFieldDelegate, 
     }
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
-        guard let webView = self.activeWebView, address = self.addressBar.text else { return false }
+        guard let webView = self.activeWebView, address = self.addressBar.text!.hasPrefix("https://") ? self.addressBar.text : "https://\(self.addressBar.text!)"  else { return false }
         guard let url = NSURL(string: address) else { return false }
         webView.loadRequest(NSURLRequest(URL: url))
         
         textField.resignFirstResponder()
         return true
+    }
+    
+    func webViewDidFinishLoad(webView: UIWebView) {
+        if webView == self.activeWebView { self.updateUIUsingWebView(webView) }
     }
 
     // MARK: - Local Methods
@@ -94,6 +103,12 @@ class ViewController: UIViewController, UIWebViewDelegate, UITextFieldDelegate, 
         }
     }
     
+    func updateUIUsingWebView(webView: UIWebView) {
+        self.title = webView.stringByEvaluatingJavaScriptFromString("document.title")
+        self.addressBar.text = webView.request?.URL?.absoluteString ?? ""
+        
+    }
+    
     func selectWebView(webView: UIWebView) {
         for view in self.stackView.arrangedSubviews {
             view.layer.borderWidth = 0
@@ -101,6 +116,8 @@ class ViewController: UIViewController, UIWebViewDelegate, UITextFieldDelegate, 
         
         self.activeWebView = webView
         webView.layer.borderWidth = 3
+        
+        self.updateUIUsingWebView(webView)
     }
     
     func setDefaultTitle() {
