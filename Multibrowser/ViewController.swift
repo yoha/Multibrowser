@@ -20,6 +20,10 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    // MARK: - IBOutlet Properties
+    
+    @IBOutlet weak var addressBar: UITextField!
+    @IBOutlet weak var stackView: UIStackView!
 
 }
 
